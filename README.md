@@ -90,7 +90,3 @@ github.com/nikoksr/assert-go.PaymentProcessing(0xc00011c000)
 - **Context over complexity**: Rich debugging information without complex APIs
 - **Clear failures**: Source context shows exactly where and why things went wrong
 - **Idiomatic Go**: Feels natural in your Go codebase
-
-## License
-
-MIT
