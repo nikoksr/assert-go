@@ -17,6 +17,8 @@
 - 📚 Rich source context showing the exact failure location
 - 🛠 Zero dependencies
 - 💡 Elegant, idiomatic Go API
+- 🎯 Build tag support to completely disable assertions
+- ⚙️ Configurable source context behavior
 
 Inspired by [Tiger Style](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety).
 
@@ -27,6 +29,8 @@ go get github.com/nikoksr/assert-go
 ```
 
 ## Usage
+
+### Basic Usage
 
 ```go
 import "github.com/nikoksr/assert-go"
@@ -83,6 +87,30 @@ github.com/nikoksr/assert-go.PaymentProcessing(0xc00011c000)
     /app/payment.go:43 +0x1b4
 # ... regular Go stacktrace continues
 ```
+
+### Configuration
+
+You can configure the assertion behavior:
+
+```go
+// Configure assertion behavior
+assert.SetConfig(assert.Config{
+    // Enable/disable source context in error messages
+    IncludeSource: true,
+    // Number of context lines to show before and after the failing line
+    ContextLines:  5,
+})
+```
+
+### Disabling Assertions
+
+If desired, you can completely disable assertions using the `noassert` build tag:
+
+```bash
+go build -tags noassert
+```
+
+When built with this tag, all assertions become no-ops with zero runtime overhead.
 
 ## Philosophy
 
