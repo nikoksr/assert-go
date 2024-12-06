@@ -1,4 +1,5 @@
 //go:build noassert
+// +build noassert
 
 package assert
 
