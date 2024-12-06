@@ -48,6 +48,79 @@ func TestAssert_BasicFailure(t *testing.T) {
 	Assert(false, "basic failure message")
 }
 
+func TestConfig_DisableSourceContext(t *testing.T) {
+	t.Parallel()
+
+	// Save original config and restore after test
+	originalConfig := activeConfig
+	defer func() {
+		SetConfig(originalConfig)
+	}()
+
+	// Disable source context
+	SetConfig(Config{
+		IncludeSource: false,
+		ContextLines:  5,
+	})
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("expected panic but got none")
+		}
+
+		err, ok := r.(AssertionError)
+		if !ok {
+			t.Fatalf("expected AssertionError but got %T", r)
+		}
+
+		// Source context should be empty when disabled
+		if err.SourceContext != "" {
+			t.Error("expected empty source context when disabled")
+		}
+	}()
+
+	Assert(false, "failure with disabled source")
+}
+
+func TestConfig_CustomContextLines(t *testing.T) {
+	t.Parallel()
+
+	// Save original config and restore after test
+	originalConfig := activeConfig
+	defer func() {
+		SetConfig(originalConfig)
+	}()
+
+	// Set custom context lines
+	customLines := 2
+	SetConfig(Config{
+		IncludeSource: true,
+		ContextLines:  customLines,
+	})
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("expected panic but got none")
+		}
+
+		err, ok := r.(AssertionError)
+		if !ok {
+			t.Fatalf("expected AssertionError but got %T", r)
+		}
+
+		// Count the number of lines in source context
+		lines := strings.Count(err.SourceContext, "\n") + 1
+		expectedLines := customLines*2 + 1 // context before + current line + context after
+		if lines != expectedLines {
+			t.Errorf("expected %d lines of context, got %d", expectedLines, lines)
+		}
+	}()
+
+	Assert(false, "failure with custom context lines")
+}
+
 func TestAssert_WithValues(t *testing.T) {
 	t.Parallel()
 
