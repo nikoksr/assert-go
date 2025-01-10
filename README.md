@@ -15,9 +15,9 @@
 
 - 🔍 Crystal-clear failure messages with contextual values
 - 📚 Rich source context showing the exact failure location
-- 🛠 Zero dependencies
+- 🛠 Tiny and free of dependencies (~100 lines of Go)
 - 💡 Elegant, idiomatic Go API
-- 🎯 Build tag support to completely disable assertions
+- 🎯 Two-tier assertion system with build tag support
 - ⚙️ Configurable source context behavior
 
 Inspired by [Tiger Style](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety).
@@ -88,6 +88,37 @@ github.com/nikoksr/assert-go.PaymentProcessing(0xc00011c000)
 # ... regular Go stacktrace continues
 ```
 
+### Two-Tier Assertion System
+
+The library provides two types of assertions:
+
+1. `Assert()` - Always active, meant for critical checks that should run in all environments
+2. `Debug()` - Development-time assertions that can be disabled in production
+
+#### Using Debug Assertions
+
+Debug assertions are disabled by default. To enable them, use the `assertdebug` build tag:
+
+```bash
+go test -tags assertdebug ./...
+go run -tags assertdebug main.go
+```
+
+Example usage:
+
+```go
+// This will only be evaluated when built with -tags assertdebug
+assert.Debug(len(items) < 1000, "items list too large",
+    "current_length", len(items),
+    "max_allowed", 1000,
+)
+
+// This will always be evaluated regardless of build tags
+assert.Assert(response != nil, "HTTP response cannot be nil",
+    "status_code", response.StatusCode,
+)
+```
+
 ### Configuration
 
 You can configure the assertion behavior:
@@ -101,16 +132,6 @@ assert.SetConfig(assert.Config{
     ContextLines:  5,
 })
 ```
-
-### Disabling Assertions
-
-If desired, you can completely disable assertions using the `noassert` build tag:
-
-```bash
-go build -tags noassert
-```
-
-When built with this tag, all assertions become no-ops with zero runtime overhead.
 
 ## Philosophy
 

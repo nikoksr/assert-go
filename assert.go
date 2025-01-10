@@ -1,6 +1,3 @@
-//go:build !noassert
-// +build !noassert
-
 package assert
 
 import (
@@ -23,13 +20,26 @@ func SetConfig(config Config) {
 	activeConfig = config
 }
 
-// Assert panics if the condition is false. Configurable via SetConfig.
+// Assert panics if the condition is false. Gloabbly configurable via SetConfig.
+//
+// Assert is intended for critical checks that should always be active, regardless of the build configuration. Use
+// assert.Debug for non-critical checks that should only be active during development.
+//
+// WARN: This assertion is live!
 func Assert(condition bool, msg string, values ...any) {
+	assert(condition, msg, values...)
+}
+
+// Assert panics if the condition is false. Configurable via SetConfig.
+func assert(condition bool, msg string, values ...any) {
 	if condition {
 		return // Assertion met
 	}
 
-	_, file, line, _ := runtime.Caller(1)
+	// Skip 2 frames:
+	// 1. this assert() function
+	// 2. the Assert() function that called us
+	_, file, line, _ := runtime.Caller(2) //nolint:mnd // Explained in comment
 
 	// If values were provided for dumping
 	numValues := len(values)
