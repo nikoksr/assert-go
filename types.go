@@ -30,7 +30,11 @@ type AssertionError struct {
 func (e AssertionError) Error() string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("Assertion failed at %s:%d\n", e.File, e.Line))
+	if e.File != "" {
+		sb.WriteString(fmt.Sprintf("Assertion failed at %s:%d\n", e.File, e.Line))
+	} else {
+		sb.WriteString("Assertion failed (Runtime caller info is not available)\n")
+	}
 	sb.WriteString(fmt.Sprintf("Message: %s\n", e.Message))
 
 	if e.SourceContext != "" {

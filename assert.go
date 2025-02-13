@@ -39,8 +39,14 @@ func assert(condition bool, msg string, values ...any) {
 	// Skip 2 frames:
 	// 1. this assert() function
 	// 2. the Assert() function that called us
-	_, file, line, _ := runtime.Caller(2) //nolint:mnd // Explained in comment
+	_, file, line, ok := runtime.Caller(2) //nolint:mnd // Explained in comment
 
+	// Could not get Caller info
+	if !ok {
+		panic(AssertionError{
+			Message: msg,
+		})
+	}
 	// If values were provided for dumping
 	numValues := len(values)
 	if numValues%2 != 0 {
