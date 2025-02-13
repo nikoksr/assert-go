@@ -27,21 +27,21 @@ func SetConfig(config Config) {
 //
 // WARN: This assertion is live!
 func Assert(condition bool, msg string, values ...any) {
-	assert(condition, msg, 2, values...)
+	// We tell assert() to skip 2 frames here:
+	//  1. The assert() function itself
+	//  2. This Assert() function that calls assert()
+	assert(condition, msg, 2, values...) //nolint:mnd // Explained in comment
 }
 
 // Assert panics if the condition is false. Configurable via SetConfig.
 // skipFrames is the number of stack frames to skip when getting the source context. 
-// By default, we skip 2 frames:
-//  1. The assert() function itself
-//  2. The Assert()/Debug() function that called assert()
 func assert(condition bool, msg string, skipFrames int, values ...any) {
 	if condition {
 		return // Assertion met
 	}
 
 
-	_, file, line, ok := runtime.Caller(skipFrames) //nolint:mnd // Explained in comment
+	_, file, line, ok := runtime.Caller(skipFrames)
 
 	// Could not get Caller info
 	if !ok {

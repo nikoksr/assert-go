@@ -10,5 +10,8 @@ package assert
 //
 // WARN: Under the current build configuration, this assertion is enabled.
 func Debug(condition bool, msg string, values ...any) {
-	assert(condition, msg, 2, values...)
+	// We tell assert() to skip 2 frames here:
+	//  1. The assert() function itself
+	//  2. This Debug() function that calls assert()
+	assert(condition, msg, 2, values...) //nolint:mnd // Explained in comment
 }
