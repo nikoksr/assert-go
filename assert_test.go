@@ -291,7 +291,7 @@ func TestAssert_EmptyValues(t *testing.T) {
 }
 
 func TestAssertCallerFailure(t *testing.T) {
-
+	assertMessage := "This should fail to get caller info"
 	// Capture and verify the panic
 	defer func() {
 		r := recover()
@@ -315,12 +315,12 @@ func TestAssertCallerFailure(t *testing.T) {
 			t.Errorf("Expected empty source context, got %q", ae.SourceContext)
 		}
 		// Message should still be included
-		if ae.Message == "" {
-			t.Error("Expected non-empty message")
+		if ae.Message != assertMessage {
+			t.Errorf("Expected %q as error message, got %q", assertMessage, ae.Message)
 		}
 	}()
 
 	// Using the assert function (only accessible internally) instead of Assert
 	// to pass a specific skipFrames value 
-	assert(false, "This should fail to get caller info", 1000)
+	assert(false, assertMessage, 1000)
 }

@@ -10,5 +10,5 @@ package assert
 //
 // WARN: Under the current build configuration, this assertion is enabled.
 func Debug(condition bool, msg string, values ...any) {
-	assert(condition, msg, values...)
+	assert(condition, msg, 2, values...)
 }
