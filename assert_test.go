@@ -289,3 +289,38 @@ func TestAssert_EmptyValues(t *testing.T) {
 		"empty_map", map[string]int{},
 	)
 }
+
+func TestAssertCallerFailure(t *testing.T) {
+	assertMessage := "This should fail to get caller info"
+	// Capture and verify the panic
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("Expected panic, but none occurred")
+		}
+
+		ae, ok := r.(AssertionError)
+		if !ok {
+			t.Fatalf("Expected AssertionError, got %T", r)
+		}
+
+		// Verify we got the simplified error without file/line info
+		if ae.File != "" {
+			t.Errorf("Expected empty file, got %q", ae.File)
+		}
+		if ae.Line != 0 {
+			t.Errorf("Expected line to be 0, got %d", ae.Line)
+		}
+		if ae.SourceContext != "" {
+			t.Errorf("Expected empty source context, got %q", ae.SourceContext)
+		}
+		// Message should still be included
+		if ae.Message != assertMessage {
+			t.Errorf("Expected %q as error message, got %q", assertMessage, ae.Message)
+		}
+	}()
+
+	// Using the assert function (only accessible internally) instead of Assert
+	// to pass a specific skipFrames value 
+	assert(false, assertMessage, 1000)
+}
