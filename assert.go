@@ -91,7 +91,10 @@ func getSourceContext(file string, line int, contextLines int) string {
 
 	scanner := bufio.NewScanner(f)
 
-	start := max(1, line-contextLines)
+	start := line - contextLines
+	if start < 1 {
+		start = 1
+	}
 	end := line + contextLines
 
 	var lines []string

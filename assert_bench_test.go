@@ -5,7 +5,7 @@ import "testing"
 // BenchmarkAssert_Success benchmarks the successful assertion path.
 // This is the hot path - assertions that pass should be extremely cheap.
 func BenchmarkAssert_Success(b *testing.B) {
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Assert(true, "never fails")
 	}
 }
@@ -13,7 +13,7 @@ func BenchmarkAssert_Success(b *testing.B) {
 // BenchmarkAssert_SuccessWithValues benchmarks successful assertions with contextual values.
 // Even though values are provided, they should not be evaluated when the assertion passes.
 func BenchmarkAssert_SuccessWithValues(b *testing.B) {
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Assert(true, "never fails",
 			"key1", "value1",
 			"key2", 42,
@@ -33,7 +33,7 @@ func BenchmarkAssert_WithSourceContext(b *testing.B) {
 	SetConfig(Config{IncludeSource: true, ContextLines: 5})
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Assert(true, "with context")
 	}
 }
@@ -49,21 +49,21 @@ func BenchmarkAssert_WithoutSourceContext(b *testing.B) {
 	SetConfig(Config{IncludeSource: false})
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Assert(true, "no context")
 	}
 }
 
 // BenchmarkDebug_Success benchmarks the Debug assertion (disabled by default).
 func BenchmarkDebug_Success(b *testing.B) {
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Debug(true, "debug assertion")
 	}
 }
 
 // BenchmarkDebug_SuccessWithValues benchmarks Debug assertions with values.
 func BenchmarkDebug_SuccessWithValues(b *testing.B) {
-	for i := 0; i < b.N; i++ { //nolint:intrange // standard benchmark pattern
+	for i := 0; i < b.N; i++ {
 		Debug(true, "debug assertion",
 			"key1", "value1",
 			"key2", 42,
