@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22.x', '1.23.x']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Run tests
+      run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+
+    - name: Run tests with assertdebug tag
+      run: go test -v -race -tags assertdebug ./...
+
+    - name: Upload coverage to Codecov
+      if: matrix.go-version == '1.23.x'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.out
+        flags: unittests
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.x'
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+        version: latest
+        args: --timeout=5m
+
+  format:
+    name: Format Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.x'
+
+    - name: Install formatting tools
+      run: |
+        go install golang.org/x/tools/cmd/goimports@latest
+        go install github.com/segmentio/golines@latest
+        go install mvdan.cc/gofumpt@latest
+        go install github.com/daixiang0/gci@latest
+
+    - name: Check formatting
+      run: |
+        make fmt
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "Code is not formatted. Please run 'make fmt' and commit the changes."
+          git diff
+          exit 1
+        fi
