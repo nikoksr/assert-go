@@ -49,7 +49,7 @@ func TestAssert_BasicFailure(t *testing.T) {
 }
 
 func TestConfig_DisableSourceContext(t *testing.T) {
-	t.Parallel()
+	// Note: Not using t.Parallel() because this test modifies shared global config
 
 	// Save original config and restore after test
 	originalConfig := activeConfig
@@ -84,7 +84,7 @@ func TestConfig_DisableSourceContext(t *testing.T) {
 }
 
 func TestConfig_CustomContextLines(t *testing.T) {
-	t.Parallel()
+	// Note: Not using t.Parallel() because this test modifies shared global config
 
 	// Save original config and restore after test
 	originalConfig := activeConfig
@@ -321,6 +321,6 @@ func TestAssertCallerFailure(t *testing.T) {
 	}()
 
 	// Using the assert function (only accessible internally) instead of Assert
-	// to pass a specific skipFrames value 
+	// to pass a specific skipFrames value
 	assert(false, assertMessage, 1000)
 }

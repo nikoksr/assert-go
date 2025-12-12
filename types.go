@@ -18,7 +18,7 @@ type Config struct {
 	ContextLines int
 }
 
-// Assert is the main assertion function. It panics if the condition is false.
+// AssertionError is the error type returned when an assertion fails.
 type AssertionError struct {
 	Message       string
 	File          string

@@ -6,7 +6,9 @@
 
 &nbsp;
 
+[![CI](https://github.com/nikoksr/assert-go/actions/workflows/ci.yml/badge.svg)](https://github.com/nikoksr/assert-go/actions/workflows/ci.yml)
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/nikoksr/assert-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nikoksr/assert-go)](https://goreportcard.com/report/github.com/nikoksr/assert-go)
 </div>
 
 &nbsp;
@@ -19,6 +21,7 @@
 - 💡 Elegant, idiomatic Go API
 - 🎯 Two-tier assertion system with build tag support
 - ⚙️ Configurable source context behavior
+- ⚡ Zero-allocation hot path (~3ns per assertion)
 
 Inspired by [Tiger Style](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety).
 
@@ -65,7 +68,7 @@ Relevant values:
   [status]: "failed"
   [amount]: 99.99
   [error]: "insufficient_funds"
-  [timestamp]: "2024-12-06T15:04:05Z"
+  [timestamp]: "2025-12-12T15:04:05Z"
 
 Source context:
    37 |     payment := processPayment(PaymentRequest{
@@ -124,7 +127,7 @@ assert.Assert(response != nil, "HTTP response cannot be nil",
 You can configure the assertion behavior:
 
 ```go
-// Configure assertion behavior
+// Configure assertion behavior (call during initialization)
 assert.SetConfig(assert.Config{
     // Enable/disable source context in error messages
     IncludeSource: true,
@@ -133,19 +136,51 @@ assert.SetConfig(assert.Config{
 })
 ```
 
+**Note:** `SetConfig` should be called during program initialization before any assertions are made. It is not thread-safe and should not be called concurrently with assertions.
+
+## Performance
+
+Assertions are designed to have minimal performance impact:
+
+```
+BenchmarkAssert_Success              ~3.0 ns/op    0 B/op    0 allocs/op
+BenchmarkAssert_SuccessWithValues    ~6.1 ns/op    0 B/op    0 allocs/op
+BenchmarkDebug_Success (disabled)    ~0.3 ns/op    0 B/op    0 allocs/op
+```
+
+**Key Takeaways:**
+- Successful assertions are extremely cheap (~3 nanoseconds)
+- Zero allocations on the hot path
+- Debug assertions when disabled are essentially free (compiler optimizes them away)
+- Even with contextual values, overhead remains minimal
+
+Run benchmarks yourself: `go test -bench=. -benchmem`
+
 ## A Personal Perspective on Assertions in Go
 
-I initially shared the common view that assertions don't align well with Go's philosophy of explicit error handling. Reading [TigerStyle's perspective on assertions](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety) made me reconsider this stance and experiment with them in my own code.
+Like many Go developers, I initially dismissed assertions as incompatible with Go's philosophy of explicit error handling. That changed when I read [TigerStyle's take on assertions](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety) and decided to experiment.
 
-I've found that assertions serve a distinct and valuable purpose alongside traditional error handling. While I handle operational failures - like network issues or invalid user input - through error returns, I now use assertions to catch programmer mistakes that should never occur in correct code. I used to write sanity checks that would return errors, wondering why I'm burdening users with checks for conditions that should be impossible to be false anyway given my code's structure – like a logger that I initialized and passed down myself just three function calls earlier. It feels weird to check for nil because I know that I just initialized this logger, it feels weird to return these types of errors to users, but at the same time, I always had this urge of checking for the "impossible". These aren't cases where graceful error handling makes sense; they're cases where continuing execution would only mask a fundamental bug in my code.
+Here's the problem I'd been living with: I've always felt the urge to validate internal invariants—checking that a logger I just initialized isn't nil, verifying state I just set up is correct, confirming assumptions about data flow within my own code. These aren't checks for user input or network failures. They're checks for *my* mistakes.
 
-I'm selective about where I use assertions. They belong in application code where I can make strong guarantees about internal state and invariants, particularly during system initialization. I don't use them in libraries or for validating application input - that's firmly error handling territory. But when I know something must be true for my program to be correct, assertions help me catch bugs early and prevent corrupted state from silently spreading.
+But the traditional Go approach felt wrong. Returning an error means telling my users: "Hey, handle this case where I might have screwed up." It pollutes APIs with impossible error cases, forcing callers to handle conditions that can only occur if my code is broken. I'd write these defensive checks anyway, feeling uncomfortable the whole time, knowing I was treating my own bugs the same as legitimate operational failures.
 
-What started as an experiment has become an essential part of how I write Go. At this point, my own experience has convinced me that thoughtful use of assertions makes my code more reliable and bugs easier to diagnose.
+Assertions solved this. They let me validate what *must* be true without burdening my API consumers. When an invariant is violated, there's no graceful recovery—continuing would only mask the bug and spread corrupted state. Better to fail immediately with rich context pointing directly at the problem.
 
-## Philosophy
+I use assertions in **application code** where I control the full context and can make strong guarantees about internal state. I don't use them in libraries (where I can't control callers) or for validating external input (that's proper error handling territory). But for checking preconditions, postconditions, and invariants I own? They're essential.
 
-- **Minimal**: Single-purpose library that does one thing well
-- **Context over complexity**: Rich debugging information without complex APIs
-- **Clear failures**: Source context shows exactly where and why things went wrong
-- **Idiomatic Go**: Feels natural in your Go codebase
+This approach has also opened doors to patterns like negative-space testing, where assertions help verify not just what should happen, but what shouldn't. Worth exploring if you go down this path.
+
+What started as a skeptical experiment has become fundamental to how I write Go. Assertions make my code more reliable and bugs dramatically easier to catch and diagnose.
+
+## More Projects
+
+If you find this library useful, you might also be interested in:
+
+- **[notify](https://github.com/nikoksr/notify)** - Dead simple Go library for sending notifications to various messaging services (3,500+ ⭐)
+- **[typeid-zig](https://github.com/nikoksr/typeid-zig)** - Complete Zig implementation of the TypeID specification, recognized as an official community implementation
+
+---
+
+<div align="center">
+<sub>Built with ❤️ by <a href="https://github.com/nikoksr">@nikoksr</a></sub>
+</div>

@@ -20,7 +20,7 @@ func SetConfig(config Config) {
 	activeConfig = config
 }
 
-// Assert panics if the condition is false. Gloabbly configurable via SetConfig.
+// Assert panics if the condition is false. Globally configurable via SetConfig.
 //
 // Assert is intended for critical checks that should always be active, regardless of the build configuration. Use
 // assert.Debug for non-critical checks that should only be active during development.
@@ -33,13 +33,12 @@ func Assert(condition bool, msg string, values ...any) {
 	assert(condition, msg, 2, values...) //nolint:mnd // Explained in comment
 }
 
-// Assert panics if the condition is false. Configurable via SetConfig.
-// skipFrames is the number of stack frames to skip when getting the source context. 
+// assert is the internal assertion helper that panics if the condition is false.
+// skipFrames is the number of stack frames to skip when getting the source context.
 func assert(condition bool, msg string, skipFrames int, values ...any) {
 	if condition {
 		return // Assertion met
 	}
-
 
 	_, file, line, ok := runtime.Caller(skipFrames)
 
@@ -49,7 +48,8 @@ func assert(condition bool, msg string, skipFrames int, values ...any) {
 			Message: msg,
 		})
 	}
-	// If values were provided for dumping
+	// If values were provided for dumping, ensure they come in key-value pairs.
+	// If an odd number of values is provided, append a placeholder for the missing value.
 	numValues := len(values)
 	if numValues%2 != 0 {
 		values = append(values, "(MISSING)")
@@ -57,10 +57,12 @@ func assert(condition bool, msg string, skipFrames int, values ...any) {
 
 	var dumpInfo string
 	if numValues > 0 {
-		dumpInfo = "\n\nRelevant values:\n"
+		var sb strings.Builder
+		sb.WriteString("\n\nRelevant values:\n")
 		for i := 0; i < numValues; i += 2 {
-			dumpInfo += fmt.Sprintf("  [%s]: %#v\n", values[i], values[i+1])
+			sb.WriteString(fmt.Sprintf("  [%s]: %#v\n", values[i], values[i+1]))
 		}
+		dumpInfo = sb.String()
 	}
 
 	// Get source context if enabled
@@ -89,7 +91,10 @@ func getSourceContext(file string, line int, contextLines int) string {
 
 	scanner := bufio.NewScanner(f)
 
-	start := max(1, line-contextLines)
+	start := line - contextLines
+	if start < 1 {
+		start = 1
+	}
 	end := line + contextLines
 
 	var lines []string
