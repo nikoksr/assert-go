@@ -10,7 +10,12 @@
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
@@ -18,25 +23,44 @@
     {
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchPackagePatterns": ["*"]
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
       "groupName": "github actions",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch", "digest"]
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ]
     },
     {
       "description": "Group golangci-lint updates specifically",
-      "matchPackageNames": ["golangci/golangci-lint-action"],
+      "matchPackageNames": [
+        "golangci/golangci-lint-action"
+      ],
       "groupName": "golangci-lint"
     }
   ],
   "vulnerabilityAlerts": {
-    "labels": ["security"],
+    "labels": [
+      "security"
+    ],
     "automerge": true,
-    "assignees": ["@nikoksr"]
+    "assignees": [
+      "@nikoksr"
+    ]
   },
   "timezone": "Europe/Berlin",
-  "schedule": ["before 9am on monday"]
+  "schedule": [
+    "before 9am on monday"
+  ]
 }
