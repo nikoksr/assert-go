@@ -1,5 +1,4 @@
 //go:build !assertdebug
-// +build !assertdebug
 
 package assert
 
