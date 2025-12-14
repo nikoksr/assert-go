@@ -162,9 +162,9 @@ Like many Go developers, I initially dismissed assertions as incompatible with G
 
 Here's the problem I'd been living with: I've always felt the urge to validate internal invariants—checking that a logger I just initialized isn't nil, verifying state I just set up is correct, confirming assumptions about data flow within my own code. These aren't checks for user input or network failures. They're checks for *my* mistakes.
 
-But the traditional Go approach felt wrong. Returning an error means telling my users: "Hey, handle this case where I might have screwed up." It pollutes APIs with impossible error cases, forcing callers to handle conditions that can only occur if my code is broken. I'd write these defensive checks anyway, feeling uncomfortable the whole time, knowing I was treating my own bugs the same as legitimate operational failures.
+But the traditional Go approach felt wrong. Returning an error means telling my users: "Hey, handle this case where I might have screwed up." It pollutes APIs with impossible error cases, forcing callers to handle conditions that can only occur if my code is broken. I'd write these defensive checks anyway, feeling uncomfortable doing so, knowing I was treating my own bugs the same as legitimate operational failures.
 
-Assertions solved this. They let me validate what *must* be true without burdening my API consumers. When an invariant is violated, there's no graceful recovery—continuing would only mask the bug and spread corrupted state. Better to fail immediately with rich context pointing directly at the problem.
+Assertions solved this. They let me validate what *must* be true without burdening my API consumers. When an invariant is violated, there's no graceful recovery; continuing would only mask the bug and spread corrupted state. Better to fail immediately with rich context pointing directly at the problem.
 
 I use assertions in **application code** where I control the full context and can make strong guarantees about internal state. I don't use them in libraries (where I can't control callers) or for validating external input (that's proper error handling territory). But for checking preconditions, postconditions, and invariants I own? They're essential.
 
