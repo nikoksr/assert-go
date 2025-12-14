@@ -5,6 +5,10 @@
     ":maintainLockFilesWeekly",
     "helpers:pinGitHubActionDigests"
   ],
+  "labels": [
+    "area/dependencies",
+    "type/enhancement"
+  ],
   "postUpdateOptions": [
     "gomodTidy"
   ],
@@ -52,7 +56,9 @@
   ],
   "vulnerabilityAlerts": {
     "labels": [
-      "security"
+      "area/dependencies",
+      "type/bug",
+      "priority/critical"
     ],
     "automerge": true,
     "assignees": [
