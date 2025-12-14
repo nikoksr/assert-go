@@ -1,0 +1,36 @@
+# Labeler configuration for automatic PR labeling based on file paths
+
+# Area labels
+area/ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - '.golangci.yaml'
+      - 'Makefile'
+
+area/testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*_test.go'
+      - '**/testdata/**/*'
+
+area/dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'go.mod'
+      - 'go.sum'
+      - 'renovate.json'
+
+area/documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'README.md'
+      - 'LICENSE'
+      - '**/*.md'
+
+area/api:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'assert.go'
+      - 'types.go'
+      - 'assert_debug.go'
