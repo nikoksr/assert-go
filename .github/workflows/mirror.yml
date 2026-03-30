@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0
-      - uses: yesolutions/mirror-action@master
+      - uses: yesolutions/mirror-action@662fce0eced8996f64d7fa264d76cddd84827f33 # master
         with:
           REMOTE: "https://codeberg.org/nikoksr/assert-go.git"
           GIT_USERNAME: "nikoksr"
